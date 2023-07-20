@@ -12,6 +12,9 @@
 #include <GLES2/gl2.h>
 #endif
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
+//
+#include<array>
+#include<string>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -126,40 +129,40 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        static int red=0;
+        static int green=0;
+        static int blue=0;
+        const int max=255;
+        static int intensity=0;
+        const int min=0;
+        ImGui::SliderInt("Intensity",&intensity,min,max);
+        std::array<std::string,3> colors={"Red","Green","Blue"};
+        static std::array<float,3> colorValues={0,0,0};
+        static int colorIndex=0;
+        std::string previewValue=colors[colorIndex]; 
+        if(ImGui::BeginCombo("Color",previewValue.c_str()))
+    {
+        for(int i=0;i<colors.size();i++){
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+            const bool isSelected=(colorIndex==i);
+            if(ImGui::Selectable(colors[i].c_str(),isSelected))
         {
-            static float f = 0.0f;
-            static int counter = 0;
-
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-            ImGui::End();
+                colorIndex=i;
+                intensity=colorValues[i];
+                
+            }
+            if(isSelected)
+            {
+                    ImGui::SetItemDefaultFocus();
+                }
         }
-
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
-            ImGui::End();
+        ImGui::EndCombo();
         }
+        colorValues[colorIndex]=intensity;
+        ImGui::Text("RGB(%f,%f,%f)",colorValues[0],colorValues[1],colorValues[2]);
+        const float alpha=200.0f/max;
+        ImVec4 color=ImVec4(colorValues[0]/max,colorValues[1]/max,colorValues[2]/255,alpha);
+        ImGui::ColorButton("Color",color,0,ImVec2(80,80));
 
         // Rendering
         ImGui::Render();
