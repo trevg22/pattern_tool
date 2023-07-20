@@ -19,6 +19,6 @@ find_package(OpenGL REQUIRED)
 target_link_libraries(prog1 glfw OpenGL::GL)
 
 add_executable(prog2 prog2.cpp)
-
-
-
+target_sources(prog2 PUBLIC ${sources} imgui/backends/imgui_impl_glfw.cpp imgui/backends/imgui_impl_opengl3.cpp)
+target_link_libraries(prog2 glfw OpenGL::GL)
+target_include_directories(prog2 PUBLIC imgui imgui/backends)
